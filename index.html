@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>elizabeth s. yunerman</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #0f0f2e;
+            color: #d0d0ff;
+            font-family: 'Nerko One', cursive;
+            font-weight: normal;
+            font-size: 1.65rem;
+            min-height: 100vh;
+            line-height: 1.25;
+        }
+
+        .bg-art {
+            position: fixed; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center 64%;
+            opacity: 0.2;
+            z-index: 0; pointer-events: none;
+            transform: rotate(25deg);
+            filter: brightness(4) saturate(0.4);
+        }
+
+        .container {
+            position: relative; z-index: 1;
+            padding: 3.5rem 6rem 3.5rem 6rem;
+        }
+
+        header { margin-bottom: 1.2rem; }
+        header h1 { font-size: 3rem; font-weight: normal; line-height: 1.2; }
+        header p  { line-height: 1.2; }
+
+        .contact-header-line {
+            display: flex; align-items: baseline;
+            flex-wrap: wrap; gap: 2rem; line-height: 1.2;
+        }
+
+        .contact-group { display: inline; }
+        #header-nav { display: inline-flex; gap: 2rem; }
+
+        .contact-trigger,
+        .nav-link {
+            color: #d0d0ff; text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-bottom-color 0.2s; cursor: pointer;
+        }
+        .contact-trigger:hover,
+        .nav-link:hover { border-bottom-color: #d0d0ff; }
+
+        #contact-email {
+            opacity: 0; pointer-events: none;
+            white-space: nowrap;
+            transition: opacity 0.25s ease;
+            color: #f0eeff;
+        }
+        #contact-email.active { opacity: 1; pointer-events: auto; }
+
+        .mobile-close-btn {
+            display: none;
+            background: transparent;
+            border: 1px solid rgba(208,208,255,0.35);
+            color: #d0d0ff;
+            font-size: 1.2rem; font-family: 'Nerko One', cursive;
+            cursor: pointer;
+            padding: 0.35rem 1.1rem 0.4rem; border-radius: 6px;
+            align-self: flex-end; margin-bottom: 1.6rem;
+        }
+
+        /* fallback only — JS overrides left / top / width */
+        #research-dropdown,
+        #minicv-dropdown {
+            position: fixed;
+            left: 8rem; top: 14rem; width: 70vw;
+            z-index: 50;
+            opacity: 0; pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        #research-dropdown.active,
+        #minicv-dropdown.active {
+            opacity: 1; pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        #research-dropdown { gap: 2.2rem; }
+
+        .research-entry { display: flex; flex-direction: column; gap: 0.3rem; }
+        .research-meta  { font-size: 1.55rem; opacity: 0.6; font-style: italic; }
+
+        .research-title {
+            display: block; color: #ececff; text-decoration: none;
+            font-size: 2rem; line-height: 1.35;
+            padding-left: 1.5rem;
+            border-left: 2px solid rgba(208,208,255,0.3);
+            border-bottom: 1px solid transparent;
+            transition: color 0.2s, border-left-color 0.2s, border-bottom-color 0.2s;
+        }
+        .research-title:hover {
+            color: #fff;
+            border-left-color: rgba(208,208,255,0.9);
+            border-bottom-color: currentColor;
+        }
+
+        .research-ads-link {
+            color: inherit; text-decoration: none;
+            font-style: italic; opacity: 0.85; font-size: 1.55rem;
+            border-bottom: 1px solid transparent;
+            align-self: flex-end; margin-top: 0.4rem;
+            transition: opacity 0.2s, border-bottom-color 0.2s;
+        }
+        .research-ads-link:hover { opacity: 1; border-bottom-color: currentColor; }
+
+        #minicv-dropdown {
+            max-height: 68vh;
+            overflow-y: auto;
+            padding: 0.6rem 0 3.5rem;
+            text-shadow: 0 0 18px rgba(8,8,30,0.85), 0 0 4px rgba(8,8,30,0.5);
+        }
+
+        #minicv-dropdown::-webkit-scrollbar { width: 2px; }
+        #minicv-dropdown::-webkit-scrollbar-track { background: transparent; }
+        #minicv-dropdown::-webkit-scrollbar-thumb {
+            background: rgba(208,208,255,0.15); border-radius: 2px;
+        }
+
+        .cv-block {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 0 2rem;
+            margin-bottom: 2rem; padding-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(208,208,255,0.07);
+        }
+        .cv-block:last-child { border-bottom: none; margin-bottom: 0; }
+
+        .cv-label {
+            padding-top: 0.1rem;
+            color: #ffffff;
+            font-size: 1.45rem;
+            letter-spacing: 0.03em;
+        }
+
+        .cv-entries { display: flex; flex-direction: column; gap: 0.9rem; }
+
+        .cv-entry {
+            display: flex; flex-direction: column; gap: 0.05rem;
+            line-height: 1.3; font-weight: normal;
+            font-size: 1.2rem; color: rgba(208,208,255,0.82);
+        }
+
+        .cv-row  { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: nowrap; }
+        .cv-date { white-space: nowrap; flex-shrink: 0; opacity: 0.65; font-size: 1.15rem; }
+
+        /* plain bold for non-gold headers */
+        .cv-bold   { font-weight: bold; color: #d0d0ff; }
+        .cv-italic { font-style: italic; font-weight: normal; }
+
+        /* lightest gold — education section only now */
+        .cv-gold { font-weight: bold; color: #ffecb3; }
+
+        .cv-star {
+            display: inline-block;
+            font-size: 1.55em;
+            line-height: 0;
+            vertical-align: -0.12em;
+            color: #ffecb3;
+        }
+
+        .cv-entry a {
+            color: inherit; text-decoration: none;
+            border-bottom: 1px solid rgba(208,208,255,0.25);
+            transition: border-bottom-color 0.2s;
+        }
+        .cv-entry a:hover { border-bottom-color: rgba(208,208,255,0.7); }
+        .cv-link { font-size: 1.05rem; font-style: italic; opacity: 0.65; }
+
+        footer {
+            position: fixed; bottom: 1.5rem;
+            left: 1.5rem; right: 1.5rem;
+            z-index: 1;
+            font-size: 1.05rem;
+            color: rgba(208,208,255,0.38);
+            line-height: 1.5;
+            pointer-events: none;
+            display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem;
+        }
+        .footer-copy { flex-shrink: 0; }
+
+        .footer-credit {
+            display: flex; flex-direction: column;
+            align-items: flex-end; gap: 0.1rem;
+            text-align: right;
+        }
+
+        /* ── CHANGE: "last updated:" white; date light gold ── */
+        .last-updated { font-size: 1.1rem; font-weight: bold; }
+        .last-updated-label { color: #ffffff; }
+        .last-updated-date  { color: #ffecb3; }
+
+        /* ═══ MOBILE ═══════════════════════════════════════════════ */
+        @media (max-width: 680px) {
+
+            .container { padding: 2rem 1.2rem; }
+
+            #research-dropdown,
+            #minicv-dropdown {
+                position: fixed;
+                top: 0 !important; left: 0 !important;
+                right: 0; bottom: 0;
+                width: 100% !important; max-height: 100vh;
+                overflow-y: auto; border-radius: 0;
+                padding: 2rem 1.5rem 2.5rem;
+                background: rgba(8,8,30,0.98);
+                backdrop-filter: none; text-shadow: none;
+                transform: translateY(20px); z-index: 200;
+            }
+            #research-dropdown.active,
+            #minicv-dropdown.active { transform: translateY(0); }
+
+            #research-dropdown { gap: 1.6rem; }
+            #minicv-dropdown   { gap: 0; }
+
+            .mobile-close-btn {
+                display: block; position: sticky; top: 0.4rem;
+                background: rgba(8,8,30,0.98); z-index: 10;
+            }
+
+            body.overlay-open .container,
+            body.overlay-open footer { display: none; }
+
+            .cv-block { display: flex; flex-direction: column; margin-bottom: 1.6rem; padding-bottom: 1.4rem; }
+            .cv-label {
+                font-size: 1.1rem; padding-bottom: 0.35rem; margin-bottom: 0.75rem;
+                border-bottom: 1px solid rgba(208,208,255,0.18);
+            }
+            .cv-row  { flex-wrap: wrap; }
+            .cv-date { flex-shrink: 1; }
+            .research-title { font-size: 1.7rem; }
+
+            footer {
+                position: static; padding: 2rem 1.2rem 1.5rem;
+                left: unset; right: unset;
+                flex-direction: column; align-items: flex-start; gap: 0.4rem;
+            }
+            .footer-credit { order: 1; align-items: flex-start; text-align: left; }
+            .footer-copy   { order: 2; }
+            #contact-email { white-space: normal; }
+        }
+    </style>
+</head>
+<body>
+
+<img src="icon_astro.png" alt="" class="bg-art">
+
+<div class="container">
+    <header>
+        <h1>elizabeth s. yunerman</h1>
+        <p>phd candidate</p>
+        <p>center for astrophysics | harvard &amp; smithsonian</p>
+
+        <p class="contact-header-line">
+            <span id="header-nav">
+                <a class="nav-link"
+                   onmouseenter="handleNavMouseEnter('research')"
+                   onmouseleave="handleNavMouseLeave('research')"
+                   onclick="handleNavClick('research', event)">research</a>
+                <a class="nav-link"
+                   onmouseenter="handleNavMouseEnter('minicv')"
+                   onmouseleave="handleNavMouseLeave('minicv')"
+                   onclick="handleNavClick('minicv', event)">mini cv</a>
+            </span>
+            <span class="contact-group">
+                <span class="contact-trigger"
+                      onmouseenter="showContact()"
+                      onmouseleave="scheduleHideContact()">contact me</span><span
+                      id="contact-email"
+                      onmouseenter="cancelHideContact()"
+                      onmouseleave="scheduleHideContact()">&thinsp;:&thinsp;eyunerman @ cfa dot harvard dot edu</span>
+            </span>
+        </p>
+    </header>
+</div>
+
+<!-- ── research dropdown ── (positioning unchanged) -->
+<div id="research-dropdown"
+     onmouseenter="if(!isMobile()) cancelCloseResearch()"
+     onmouseleave="if(!isMobile()) scheduleCloseResearch()">
+
+    <button class="mobile-close-btn" onclick="closeMobileOverlay()">✕ close</button>
+
+    <div class="research-entry">
+        <span class="research-meta">
+            Yunerman, Price, Öberg &nbsp;&middot;&nbsp; ApJ 1004, 63 &nbsp;&middot;&nbsp; apr. 2026
+        </span>
+        <a class="research-title"
+           href="https://iopscience.iop.org/article/10.3847/1538-4357/ae60fe"
+           target="_blank">
+            Icy Volatile Enhancements in Evolving Protoplanetary Disks
+        </a>
+    </div>
+
+    <div class="research-entry">
+        <span class="research-meta">
+            Yunerman, Powell, Murray-Clay &nbsp;&middot;&nbsp; ApJ 961, 33 &nbsp;&middot;&nbsp; jan. 2024
+        </span>
+        <a class="research-title"
+           href="https://iopscience.iop.org/article/10.3847/1538-4357/ad05b9"
+           target="_blank">
+            A Pathway for Collisional Planetesimal Growth in the Ice-dominant Regions of Protoplanetary Disks
+        </a>
+    </div>
+
+    <a class="research-ads-link"
+       href="https://ui.adsabs.harvard.edu/search/filter_property_fq_property=AND&amp;filter_property_fq_property=property%3A%22refereed%22&amp;fq=%7B!type%3Daqp%20v%3D%24fq_database%7D&amp;fq=%7B!type%3Daqp%20v%3D%24fq_property%7D&amp;fq_database=(database%3Aastronomy%20OR%20database%3Aphysics)&amp;fq_property=(property%3A%22refereed%22)&amp;q=author%3A%22yunerman%2Ce%22&amp;sort=date%20desc%2C%20bibcode%20desc&amp;p_=0"
+       target="_blank">
+        &#8594; full ads list
+    </a>
+</div>
+
+<!-- ── mini cv dropdown ── -->
+<div id="minicv-dropdown"
+     onmouseenter="if(!isMobile()) cancelCloseMinicv()"
+     onmouseleave="if(!isMobile()) scheduleCloseMinicv()">
+
+    <button class="mobile-close-btn" onclick="closeMobileOverlay()">✕ close</button>
+
+    <!-- EDUCATION — gold headers kept -->
+    <div class="cv-block">
+      <div class="cv-label">education</div>
+      <div class="cv-entries">
+        <div class="cv-entry">
+          <div class="cv-row"><span class="cv-gold">Harvard University</span><span class="cv-date">Cambridge, MA</span></div>
+          <div class="cv-row"><span>Ph.D. in Astronomy &amp; Astrophysics</span><span class="cv-date">2021 – present</span></div>
+          <div class="cv-row"><span>M.A. in Astronomy &amp; Astrophysics</span><span class="cv-date">2025</span></div>
+        </div>
+        <div class="cv-entry">
+          <div class="cv-row"><span class="cv-gold">University of California, Santa Cruz</span><span class="cv-date">Santa Cruz, CA</span></div>
+          <div class="cv-row"><span>B.S. in Physics, minor in Planetary Science</span><span class="cv-date">2017 – 2021</span></div>
+          <div class="cv-italic">2022 Dean's, Chancellor's, and Steck Awards for Finest Undergraduate Research Thesis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESEARCH POSITIONS — CHANGE: cv-gold → cv-bold (no yellow) -->
+    <div class="cv-block">
+      <div class="cv-label">research positions</div>
+      <div class="cv-entries">
+        <div class="cv-entry">
+          <div class="cv-row"><span class="cv-bold">Center for Astrophysics | Harvard &amp; Smithsonian</span><span class="cv-date">2021 – present</span></div>
+          <div>Advisors: <a href="https://karinoberg.cfa.harvard.edu/" target="_blank">Prof. Karin Öberg</a>, <a href="https://emprice.org/" target="_blank">Dr. Ellen Price</a></div>
+          <div class="cv-italic">modeling volatile redistribution in protoplanetary disks</div>
+        </div>
+        <div class="cv-entry">
+          <div class="cv-row"><span class="cv-bold">Caltech Summer Undergraduate Research Fellowship</span><span class="cv-date">summer 2020</span></div>
+          <div>Advisors: <a href="http://www.tapir.caltech.edu/~phopkins/Site/" target="_blank">Prof. Philip Hopkins</a>, <a href="https://apf.physics.otago.ac.nz/" target="_blank">Dr. Jonathan Squire</a></div>
+          <div class="cv-italic">simulating the disk settling instability at small scales</div>
+        </div>
+        <div class="cv-entry">
+          <div class="cv-row"><span class="cv-bold">University of California, Santa Cruz</span><span class="cv-date">2018 – 2023</span></div>
+          <div>Advisors: <a href="https://murrayclay.astro.ucsc.edu/index.html" target="_blank">Prof. Ruth Murray-Clay</a>, <a href="https://sites.google.com/ucsc.edu/diana-powell/home" target="_blank">Prof. Diana Powell</a></div>
+          <div class="cv-italic">modeling species-dependent collisional fragmentation regions disks</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEACHING ── -->
+    <div class="cv-block">
+      <div class="cv-label">teaching</div>
+      <div class="cv-entries">
+        <div class="cv-entry">
+          <div class="cv-row"><span>Teaching Fellow, Harvard</span><span class="cv-date">spring 2024</span></div>
+          <div class="cv-italic">ASTRON 16: Stellar &amp; Planetary Astronomy</div>
+        </div>
+        <div class="cv-entry">
+          <div class="cv-row"><span>Teaching Fellow, Harvard</span><span class="cv-date">fall 2022</span></div>
+          <div class="cv-italic">ASTRON 200: Radiative Processes in Astrophysics</div>
+        </div>
+        <div class="cv-entry">
+          <div class="cv-row"><span>Peer Research Mentor, UCSC</span><span class="cv-date">2019</span></div>
+          <div class="cv-italic">ASTR 9: Introduction to Research in Physics &amp; Astronomy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMUNITY ── -->
+    <div class="cv-block">
+      <div class="cv-label">community</div>
+      <div class="cv-entries">
+        <div class="cv-entry"><div class="cv-row"><span>Peer Mentor, Harvard Astronomy Graduate Student Peer Mentoring Program</span><span class="cv-date">2025 – 2026</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>G3-G4 Representative, Harvard Astronomy Student-Faculty Council</span><span class="cv-date">2023 – 2025</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Co-organizer, Faculty and Graduate Student Lunches</span><span class="cv-date">2023 – 2025</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Co-organizer, Harvard Astronomy Graduate Student Peer Mentoring Program</span><span class="cv-date">2023 – 2025</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Harvard Astronomy Faculty Search Student Representative</span><span class="cv-date">2024</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Co-organizer, Harvard Astronomy Prospective Visit</span><span class="cv-date">2023</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Mentor, UCSC WiPA + SPS Mentoring Program</span><span class="cv-date">2021 – 2023</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Co-president, UCSC WiPA</span><span class="cv-date">2019 – 2020</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Outreach Coordinator, UCSC WiPA</span><span class="cv-date">2018 – 2019</span></div></div>
+      </div>
+    </div>
+
+    <!-- TALKS & POSTERS ── -->
+    <div class="cv-block">
+      <div class="cv-label">talks<span class="cv-star">*</span> &amp; posters</div>
+      <div class="cv-entries">
+        <div class="cv-entry"><div class="cv-row"><span>A Dynamical Synthesis of Dynamical Systems<span class="cv-star">*</span> <span class="cv-italic">[invited]</span></span><span class="cv-date">jan. 2026</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>MIT Mini Disk Symposium<span class="cv-star">*</span></span><span class="cv-date">aug. 2025</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>GRC Origins of Solar Systems</span><span class="cv-date">jun. 2025</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>CfA Exoplanet Pizza Lunch<span class="cv-star">*</span></span><span class="cv-date">feb. 2025</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Exoplanets V</span><span class="cv-date">jun. 2024</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>MIT EAPS Planetary Lecture Series<span class="cv-star">*</span> <span class="cv-italic">[invited]</span></span><span class="cv-date">apr. 2024</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>CfA SSP Science Bites<span class="cv-star">*</span></span><span class="cv-date">jan. 2024</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Protostars &amp; Planets VII</span><span class="cv-date">apr. 2023</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>GRS+GRC Origins of Solar Systems</span><span class="cv-date">jun. 2023</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>CfA Exoplanet Pizza Lunch<span class="cv-star">*</span></span><span class="cv-date">mar. 2023</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Exoplanets IV</span><span class="cv-date">may 2022</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>237th AAS</span><span class="cv-date">jan. 2021</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Caltech SFP Fall Seminar Day<span class="cv-star">*</span></span><span class="cv-date">aug. 2020</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>Extreme Solar Systems IV</span><span class="cv-date">jan. 2019</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>APS Conference for Undergraduate Women in Physics</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>233rd AAS</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>UCSC Summer Research Symposium</span><span class="cv-date">2018</span></div></div>
+        <div class="cv-entry"><div class="cv-row"><span>UCSC ASTR 9 Research Symposium</span></div></div>
+      </div>
+    </div>
+
+</div><!-- end minicv-dropdown -->
+
+<!-- ── footer ── -->
+<footer>
+    <p class="footer-copy">© 2026 elizabeth s. yunerman. all rights reserved.</p>
+    <div class="footer-credit">
+        <!-- CHANGE: "last updated:" white, "june 2026" light gold, no period -->
+        <p class="last-updated">
+            <span class="last-updated-label">last updated:</span>
+            <span class="last-updated-date">june 2026</span>
+        </p>
+        <p>this website was created by me with the help of claude sonnet 4.6. artwork is my own.</p>
+    </div>
+</footer>
+
+<script>
+    function isMobile() { return window.innerWidth <= 680; }
+
+    let researchCloseTimer = null, minicvCloseTimer = null, contactHideTimer = null;
+
+    function openResearch()          { cancelCloseResearch(); closeMinicv(); document.getElementById('research-dropdown').classList.add('active'); }
+    function closeResearch()         { document.getElementById('research-dropdown').classList.remove('active'); document.body.classList.remove('overlay-open'); }
+    function scheduleCloseResearch() { researchCloseTimer = setTimeout(closeResearch, 300); }
+    function cancelCloseResearch()   { clearTimeout(researchCloseTimer); researchCloseTimer = null; }
+
+    function openMinicv()          { cancelCloseMinicv(); closeResearch(); document.getElementById('minicv-dropdown').classList.add('active'); }
+    function closeMinicv()         { document.getElementById('minicv-dropdown').classList.remove('active'); document.body.classList.remove('overlay-open'); }
+    function scheduleCloseMinicv() { minicvCloseTimer = setTimeout(closeMinicv, 300); }
+    function cancelCloseMinicv()   { clearTimeout(minicvCloseTimer); minicvCloseTimer = null; }
+
+    function showContact() {
+        cancelHideContact();
+        closeResearch(); closeMinicv();
+        document.getElementById('contact-email').classList.add('active');
+    }
+    function hideContact()         { document.getElementById('contact-email').classList.remove('active'); }
+    function scheduleHideContact() { contactHideTimer = setTimeout(hideContact, 300); }
+    function cancelHideContact()   { clearTimeout(contactHideTimer); contactHideTimer = null; }
+
+    function handleNavMouseEnter(type) { if (!isMobile()) type === 'research' ? openResearch() : openMinicv(); }
+    function handleNavMouseLeave(type) { if (!isMobile()) type === 'research' ? scheduleCloseResearch() : scheduleCloseMinicv(); }
+    function handleNavClick(type, e) {
+        if (!isMobile()) return;
+        e.preventDefault();
+        type === 'research' ? openResearch() : openMinicv();
+        document.body.classList.add('overlay-open');
+    }
+
+    function closeMobileOverlay() { closeResearch(); closeMinicv(); }
+
+    /* ── positionDropdowns ──────────────────────────────────────────
+       Research: unchanged — anchored to nav link left + INDENT_REM,
+                 with RESEARCH_EXTRA_DOWN px of extra vertical gap.
+       Mini cv:  centered on viewport with equal side margins.        */
+    function positionDropdowns() {
+        const GAP_PX              = 12;
+        const RESEARCH_EXTRA_DOWN = 20;
+        const INDENT_REM          = 2;
+        const MAX_WIDTH           = 1000;
+
+        const rd = document.getElementById('research-dropdown');
+        const md = document.getElementById('minicv-dropdown');
+
+        if (isMobile()) {
+            rd.style.left = md.style.left = '';
+            rd.style.top  = md.style.top  = '';
+            rd.style.width = md.style.width = '';
+            return;
+        }
+
+        const rem       = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const headerBot = document.querySelector('header').getBoundingClientRect().bottom;
+        const baseTop   = headerBot + GAP_PX;
+
+        /* ── research: nudge down, anchor to nav link ── */
+        rd.style.top = (baseTop + RESEARCH_EXTRA_DOWN) + 'px';
+
+        const linkRect       = document.querySelector('#header-nav .nav-link:first-child').getBoundingClientRect();
+        const rdLeft         = linkRect.left + INDENT_REM * rem;
+        const rdRightMargin  = 1.5 * rem;
+        const rdWidth        = Math.max(300, Math.min(MAX_WIDTH, window.innerWidth - rdLeft - rdRightMargin));
+
+        rd.style.left  = rdLeft + 'px';
+        rd.style.width = rdWidth + 'px';
+
+        /* ── mini cv: same vertical start, centered horizontally ── */
+        md.style.top = baseTop + 'px';
+
+        const sideMargin = 1.5 * rem;     /* mirrors footer left/right */
+        const mdWidth    = Math.max(300, Math.min(MAX_WIDTH, window.innerWidth - 2 * sideMargin));
+        const mdLeft     = (window.innerWidth - mdWidth) / 2;
+
+        md.style.left  = mdLeft + 'px';
+        md.style.width = mdWidth + 'px';
+    }
+
+    window.addEventListener('load',   positionDropdowns);
+    window.addEventListener('resize', positionDropdowns);
+</script>
+
+</body>
+</html>
