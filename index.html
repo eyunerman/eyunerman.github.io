@@ -79,6 +79,21 @@
                 0 0 40px rgba(118, 120, 237, 0.10);
         }
 
+        /* ── main page bio ── */
+        .main-bio {
+            position: fixed;
+            top: 3.5rem;
+            right: 6rem;
+            z-index: 1;
+            pointer-events: none;
+            font-family: var(--font-header);
+            font-size: 1.35rem;
+            line-height: 1.65;
+            color: rgba(200, 195, 255, 0.75);
+            white-space: pre;
+            text-align: left;
+        }
+
         .contact-header-line {
             display: flex; align-items: baseline;
             flex-wrap: wrap; gap: 2rem; line-height: 1.4;
@@ -101,7 +116,6 @@
             border-bottom-color: var(--col-amber-flame);
         }
 
-        /* ── email: same font as body, smaller, not italic ── */
         #contact-email {
             opacity: 0; pointer-events: none;
             white-space: nowrap;
@@ -298,6 +312,8 @@
 
             .container { padding: 2rem 1.2rem; }
 
+            .main-bio { display: none; }
+
             #research-dropdown,
             #minicv-dropdown {
                 position: fixed;
@@ -383,6 +399,16 @@
         </p>
     </header>
 </div>
+
+<p class="main-bio">                i model the physical and chemical evolution 
+                        of dust, gas, and ice in planet forming disks
+
+        grounded by observations and laboratory experiments,
+                                    keeping in mind the stages that come
+                                                    before and after formation.</p>
+
+
+                                                                
 
 <!-- ── research dropdown ── -->
 <div id="research-dropdown"
@@ -569,23 +595,19 @@
         const triggerEl = document.querySelector('.contact-trigger');
         const address   = 'eyunerman@cfa.harvard.edu';
 
-        /* make sure email is visible when clicking contact-trigger directly */
         emailEl.classList.add('active');
         cancelHideContact();
 
-        /* snap both to cayenne red */
         [emailEl, triggerEl].forEach(el => {
             el.style.transition = 'color 0.08s ease';
             el.style.color      = '#f35b04';
         });
 
-        /* fade both back to amber-flame */
         setTimeout(() => {
             [emailEl, triggerEl].forEach(el => {
                 el.style.transition = 'color 0.85s ease';
                 el.style.color      = '#f7b801';
             });
-            /* clear inline styles once settled */
             setTimeout(() => {
                 [emailEl, triggerEl].forEach(el => {
                     el.style.color      = '';
